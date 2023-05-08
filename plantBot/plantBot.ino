@@ -1,18 +1,23 @@
-const int dry = 300; // the higher the number, the dryer it is.
+// A simple Water pump and LED light controller that enable indoor plant growth
+// Version 1.1
+// Created by Karl Poulson
 
+// constants
+const int dry = 300; // the higher the number, the dryer it is.
 const int pumpPin = 12;
 const int lightPin = 13;
 const int soilSensor = A4;
 const int saucerLEDPin = 11;
 
+
 void setup() {
-  // put your setup code here, to run once:
+  // initialize the pins with pull down resistors
   pinMode(pumpPin, OUTPUT);
   pinMode(lightPin, OUTPUT);
   pinMode(saucerLEDPin, OUTPUT);
   pinMode(soilSensor, INPUT);
   Serial.begin(9600);
-  digitalWrite(pumpPin, HIGH);  //enable pulldown resistor?
+  digitalWrite(pumpPin, HIGH);
   digitalWrite(lightPin, HIGH);
   digitalWrite(saucerLEDPin, HIGH);
   delay(5000);
@@ -39,13 +44,23 @@ void waterPlants() {
   }
 }
 
-void turnLightsOn() {         // 8640000 ms in 24 hours or 352500 ms in an hour and 28800000 ms in 8 hours
-  digitalWrite(lightPin, LOW); // Turns lights off, then on.
+// returns hours converted to ms
+// 86400000ms in 24 hours or 3600000ms in an hour
+int hours_to_ms(int hours) {
+  int LED_time = hours * 3600000;
+  return LED_time;
+}
+
+// Activates the switches to turn on the LEDs
+void turnLightsOn() {   
+  // turn LEDs on 
+  digitalWrite(lightPin, LOW);
   digitalWrite(saucerLEDPin, LOW);
-  delay(43200000);            // 12 hours off, 12 hours on. 
+  delay(hours_to_ms(16));    
+  // turn LEDs off        
   digitalWrite(lightPin, HIGH);
   digitalWrite(saucerLEDPin, HIGH);
-  delay(43200000);           // Turn LEDs on for 8 hours
+  delay(hours_to_ms(8));     
 }
 
 void loop() {
