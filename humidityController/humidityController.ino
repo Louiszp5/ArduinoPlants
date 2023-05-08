@@ -1,6 +1,6 @@
 // V 1.0
-
 // Simple Humidity and LED control
+// Created by Karl Poulson
 
 
 const int fogPump = 5;
