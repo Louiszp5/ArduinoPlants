@@ -1,68 +1,93 @@
-// A simple Water pump and LED light controller that enable indoor plant growth
-// Version 1.1
+// A simple Water pump and LED light controller for indoor plants
+// Version 1.5, Last Updated Jul 10 2023
 // Created by Karl Poulson
 
-// constants
-const int dry = 300; // the higher the number, the dryer it is.
+// ----- CONSTANTS -----
+const int min_dryness = 600; // the higher the number, the dryer it is.
 const int pumpPin = 12;
 const int lightPin = 13;
-const int soilSensor = A4;
+const int soilSensor = A0;
 const int saucerLEDPin = 11;
+const int seedlingLED = 10;
 
+// ----- TIMERS -----
+const int water_time_sec = 5;
+const int LED_on_time_hrs = 14;
+const int LED_off_time_hrs = 10;
 
+// ----- SETUP ----- 
 void setup() {
-  // initialize the pins with pull down resistors
+  // initialize the pins
+  Serial.begin(9600);
   pinMode(pumpPin, OUTPUT);
   pinMode(lightPin, OUTPUT);
   pinMode(saucerLEDPin, OUTPUT);
+  pinMode(seedlingLED, OUTPUT);
   pinMode(soilSensor, INPUT);
-  Serial.begin(9600);
   digitalWrite(pumpPin, HIGH);
   digitalWrite(lightPin, HIGH);
   digitalWrite(saucerLEDPin, HIGH);
-  delay(5000);
+  digitalWrite(seedlingLED, HIGH);
+  delay(seconds(1));
 }
 
+// ----- HELPER FUNCTIONS -----
+// returns hours converted to ms
+// 86400000ms in 24 hours or 3600000ms in an hour
+long hours(int milliseconds) {
+  long hrs_in_ms = milliseconds * 3600000;
+  Serial.println("LED time in ms: " + String(hrs_in_ms));
+  return hrs_in_ms;
+}
+
+long seconds(int milliseconds) {
+  // convert ms to seconds (expressed in ms)
+  long ms_in_sec = milliseconds * 1000;
+  Serial.println("Watering time in ms: " + String(ms_in_sec));
+  return ms_in_sec;
+}
+
+// ----- FUNCTIONS -----
 void waterPlants() {
+  // Activates the water pump when soil is dry
   // read current moisture
-  int moistureLevel = analogRead(soilSensor);
-  Serial.println("Mositure Level at: " + String(moistureLevel));
-  
-  if (dry <= moistureLevel) 
+  // LOW = on, HIGH = off
+  int drynessLevel = analogRead(soilSensor);
+  Serial.println("Mositure Level at: " + String(drynessLevel));
+  if (drynessLevel > min_dryness) 
     {
-      Serial.println("Watering starts now. Moisture is " + String(moistureLevel));
+      Serial.println("Watering starts now. Moisture is " + String(drynessLevel));
       digitalWrite(pumpPin, LOW);
-      delay(100000);
+      delay(seconds(water_time_sec));
       digitalWrite(pumpPin, HIGH);
       Serial.println("Done watering.");
       // delay, let water seep in.
-      delay(10000);
+      delay(seconds(60));
       waterPlants();
     }
   else {
-    Serial.println("Moisture is adequate. No watering needed " + String(moistureLevel));
+    Serial.println("Moisture is adequate. No watering needed " + String(drynessLevel));
   }
 }
 
-// returns hours converted to ms
-// 86400000ms in 24 hours or 3600000ms in an hour
-int hours_to_ms(int hours) {
-  int LED_time = hours * 3600000;
-  return LED_time;
-}
+void turnLightsOn() {      
+  // Activates the switches to turn on the LEDs.
+  // LOW = on, HIGH = off    
 
-// Activates the switches to turn on the LEDs
-void turnLightsOn() {   
-  // turn LEDs on 
+  // Turn LEDs on
   digitalWrite(lightPin, LOW);
   digitalWrite(saucerLEDPin, LOW);
-  delay(hours_to_ms(16));    
-  // turn LEDs off        
+  digitalWrite(seedlingLED, LOW);
+  delay(hours(LED_on_time_hrs)); 
+
+  // Turn LEDs off
   digitalWrite(lightPin, HIGH);
   digitalWrite(saucerLEDPin, HIGH);
-  delay(hours_to_ms(8));     
+  digitalWrite(seedlingLED, HIGH);
+  delay(hours(LED_off_time_hrs));     
 }
 
+// ----- MAIN LOOP -----
 void loop() {
   waterPlants();
   turnLightsOn();
