@@ -52,7 +52,7 @@
  * 
  * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
  */
-#define AGREE_TO_TERMS false
+#define AGREE_TO_TERMS true
 
 //SoftwareSerial TX on pin 3 -> connect to GREY wire on the Jetson Bolt Pro
 SoftwareSerial mySerial(2, 3); // RX, TX
